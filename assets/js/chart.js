@@ -1,237 +1,192 @@
+// Authentication and API Configuration
+const API_BASE_URL = 'https://bridge-test-api.herokuapp.com';
+const LOGIN_PAGE = 'https://ansuman528.github.io/VisualPe/login.html';
+const WAIT_PAGE = 'https://ansuman528.github.io/VisualPe/wait.html';
 
-const pl1=[
-  'rgba(255, 99, 132, 0.5)',
-  'rgba(54, 162, 235, 0.5)',
-  'rgba(255, 206, 86, 0.5)',
-  'rgba(75, 192, 192, 0.5)',
-  'rgba(153, 102, 255, 0.5)',
-  'rgba(255, 159, 64, 0.5)',
-  'rgba(240,163,255,0.5)',
-  'rgba(0,117,220,0.5)',
-  'rgba(153,63,0,0.5)',
-  'rgba(76,0,92,0.5)',
-  'rgba(25,25,25,0.5)',
-  'rgba(0,92,49,0.5)',
-  'rgba(43,206,72,0.5)',
-  'rgba(255,204,153,0.5)',
-  'rgba(128,128,128,0.5)',
-  'rgba(148,255,181,0.5)',
-  'rgba(143,124,0,0.5)',
-  'rgba(157,204,0,0.5)',
-  'rgba(194,0,136,0.5)',
-  'rgba(0,51,128,0.5)',
-  'rgba(255,164,5,0.5)',
-  'rgba(255,168,187,0.5)',
-  'rgba(66,102,0,0.5)',
-  'rgba(255,0,16,0.5)',
-  'rgba(94,241,242,0.5)',
-  'rgba(0,153,143,0.5)',
-  'rgba(224,255,102,0.5)',
-  'rgba(116,10,255,0.5)',
-  'rgba(153,0,0,0.5)',
-  'rgba(255,255,128,0.5)',
-  'rgba(255,255,0,0.5)',
-  'rgba(255,80,5,0.5)']
-  
-  const pl2=[
-    'rgba(255,99,132,1)',
-    'rgba(54, 162, 235, 1)',
-    'rgba(255, 206, 86, 1)',
-    'rgba(75, 192, 192, 1)',
-    'rgba(153, 102, 255, 1)',
-    'rgba(255, 159, 64, 1)',
-    'rgba(240,163,255,1)',
-      'rgba(0,117,220,1)',
-      'rgba(153,63,0,1)',
-      'rgba(76,0,92,1)',
-      'rgba(25,25,25,1)',
-      'rgba(0,92,49,1)',
-      'rgba(43,206,72,1)',
-      'rgba(255,204,153,1)',
-      'rgba(128,128,128,1)',
-      'rgba(148,255,181,1)',
-      'rgba(143,124,0,1)',
-      'rgba(157,204,0,1)',
-      'rgba(194,0,136,1)',
-      'rgba(0,51,128,1)',
-      'rgba(255,164,5,1)',
-      'rgba(255,168,187,1)',
-      'rgba(66,102,0,1)',
-      'rgba(255,0,16,1)',
-      'rgba(94,241,242,1)',
-      'rgba(0,153,143,1)',
-      'rgba(224,255,102,1)',
-      'rgba(116,10,255,1)',
-      'rgba(153,0,0,1)',
-      'rgba(255,255,128,1)',
-      'rgba(255,255,0,1)',
-      'rgba(255,80,5,1)']
+// Check if current page is login page to prevent redirect loops
+const isLoginPage = window.location.href.includes('login.html');
 
+// Authentication Check
+const checkAuthentication = async () => {
+    if (isLoginPage) return; // Don't check auth on login page
 
-const getPulseData=(type,callback)=>{
-  fetch(`https://raw.githubusercontent.com/PhonePe/pulse/master/data/aggregated/transaction/country/india/${type}`,
-   {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
-      "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, Authorization"
-   }
-      
-      ).then((resp)=>resp.json())
-      .then((resp)=>{
-              {
-                 callback(resp)
-              }
-          })
-      .catch(()=>{ 
-          console.log("connection error")
-      })
-}
-const getData =(type,callback)=>{
-  fetch(`https://bridge-test-api.herokuapp.com/get-data/${type}`,
-  {
-      method:'get',
-      mode:'cors',
-      credentials: 'same-origin',
-      headers: {"Content-type": "application/json; charset=UTF-8","x-access-token":jwt},
-  }
-  ).then((resp)=>resp.json())
-  .then((resp)=>{
-          {
-             callback(resp)
-          }
-      })
-  .catch(()=>{ 
-      console.log("connection error")
-  })
-}
-const insert=(id,data)=>{
-  if ($(`#${id}`).length) {
-    $(`#${id}`).get(0).innerHTML=data
-  }
-}
-var doughnutPieData = {
-  datasets: [{
-    data: [],
-    backgroundColor: pl1,
-    borderColor: pl2
-     
-  }],
-
-  // These labels appear in the legend and in the tooltips when hovering different arcs
-  labels: [
-    'employee',
-    'employer'
-  ]
-};
-var doughnutPieOptions = {
-  responsive: true,
-  animation: {
-    animateScale: true,
-    animateRotate: true
-  }
-};
-var Bardata = {
-  labels: [],
-  datasets: [{
-      label: '₹',
-    data: [],
-    backgroundColor: [
-      'rgba(255, 99, 132, 0.2)',
-      'rgba(54, 162, 235, 0.2)',
-      'rgba(255, 206, 86, 0.2)',
-      'rgba(75, 192, 192, 0.2)',
-      'rgba(153, 102, 255, 0.2)',
-      'rgba(255, 159, 64, 0.2)'
-    ],
-    borderColor: [
-      'rgba(255,99,132,1)',
-      'rgba(54, 162, 235, 1)',
-      'rgba(255, 206, 86, 1)',
-      'rgba(75, 192, 192, 1)',
-      'rgba(153, 102, 255, 1)',
-      'rgba(255, 159, 64, 1)'
-    ],
-    borderWidth: 1,
-    fill: false
-  }]
-};
-var Baroptions = {
-  scales: {
-    yAxes: [{
-      ticks: {
-        beginAtZero: true
-      }
-    }]
-  },
-  legend: {
-    display: false
-  },
-  elements: {
-    point: {
-      radius: 0
-    }
-  }
-
-};
-
-
-
-const Pi=(id,data,labels)=>{
-  doughnutPieData.datasets[0].data=data
-  doughnutPieData.labels=labels
-    if ($(`#${id}`).length) {
-      var pieChartCanvas = $(`#${id}`).get(0).getContext("2d");
-      var pieChart = new Chart(pieChartCanvas, {
-        type: 'pie',
-        data: doughnutPieData,
-        options: doughnutPieOptions
-      });
+    const jwt = localStorage.getItem("jwt");
+    if (!jwt) {
+        window.location.href = LOGIN_PAGE;
+        return;
     }
 
-}
-const Bar=(id,data,labels)=>{
-  Bardata.datasets[0].data=data
-  Bardata.labels=labels
-  if ($(`#${id}`).length) {
-      var barChartCanvas = $(`#${id}`).get(0).getContext("2d");
-      var barChart = new Chart(barChartCanvas, {
+    try {
+        const response = await fetch(`${API_BASE_URL}/checklogin`, {
+            method: 'GET',
+            mode: 'cors',
+            credentials: 'same-origin',
+            headers: {
+                "Content-type": "application/json; charset=UTF-8",
+                "x-access-token": jwt
+            }
+        });
+
+        const data = await response.json();
+        
+        if (data.wait) {
+            window.location.href = WAIT_PAGE;
+            return;
+        }
+        
+        if (!data.auth) {
+            window.location.href = LOGIN_PAGE;
+            return;
+        }
+
+        return true; // Authentication successful
+    } catch (error) {
+        console.error('Authentication check failed:', error);
+        return false;
+    }
+};
+
+// Chart Creation Functions
+const createBarChart = (elementId, data, labels) => {
+    if (!document.getElementById(elementId)) return;
+
+    const ctx = document.getElementById(elementId).getContext('2d');
+    return new Chart(ctx, {
         type: 'bar',
-        data: Bardata,
-        options: Baroptions
-      });
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Data',
+                data: data,
+                backgroundColor: [
+                    'rgba(218, 140, 255, 1)',
+                    'rgba(154, 85, 255, 1)'
+                ],
+                borderColor: [
+                    'rgba(218, 140, 255, 1)',
+                    'rgba(154, 85, 255, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+};
+
+const createPieChart = (elementId, data, labels) => {
+    if (!document.getElementById(elementId)) return;
+
+    const ctx = document.getElementById(elementId).getContext('2d');
+    return new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: [
+                    'rgba(218, 140, 255, 1)',
+                    'rgba(154, 85, 255, 1)'
+                ],
+                borderColor: [
+                    'rgba(218, 140, 255, 1)',
+                    'rgba(154, 85, 255, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            }
+        }
+    });
+};
+
+// Data Fetching Function
+const getData = async (endpoint, callback) => {
+    const jwt = localStorage.getItem("jwt");
+    if (!jwt) return;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/${endpoint}`, {
+            method: 'GET',
+            mode: 'cors',
+            credentials: 'same-origin',
+            headers: {
+                "Content-type": "application/json; charset=UTF-8",
+                "x-access-token": jwt
+            }
+        });
+
+        const data = await response.json();
+        if (callback && typeof callback === 'function') {
+            callback(data);
+        }
+        return data;
+    } catch (error) {
+        console.error(`Error fetching ${endpoint} data:`, error);
     }
-}
+};
 
+// Helper function to insert text content
+const insert = (elementId, text) => {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.textContent = text;
+    }
+};
 
-const logout=()=>{
-  localStorage.removeItem("jwt");
-  window.location.href="https://ansuman528.github.io/VisualPe/login.html"
-}
-// if(window.location.href.substring(0,37) == "https://ansuman528.github.io/VisualPe"){
-var jwt=localStorage.getItem("jwt")
-if(jwt==null)window.location.href="https://ansuman528.github.io/VisualPe/login.html"
-insert("phn-no",JSON.parse(window.atob(jwt.split('.')[1])).phone)
-insert("phn-noa",JSON.parse(window.atob(jwt.split('.')[1])).phone)
-fetch(`https://bridge-test-api.herokuapp.com/checklogin`,
-  {
-      method:'get',
-      mode:'cors',
-      credentials: 'same-origin',
-      headers: {"Content-type": "application/json; charset=UTF-8","x-access-token":jwt},
-  }
-  ).then((resp)=>resp.json())
-  .then((resp)=>{
-          {
-             console.log(resp)
-             if(resp.wait==true)
-             window.location.href="https://ansuman528.github.io/VisualPe/wait.html"
-             if(resp.auth==false)
-             window.location.href="https://ansuman528.github.io/VisualPe/login.html"
-          }
-      })
-  .catch(()=>{ 
-      // $(sub).get(0).innerHTML=`<h3>Oops something went wrong ...</h3><h4>Try again </h4><h5>Reloading page ...</h5>`
-      // setTimeout(()=>window.location.reload(),5000)
-  })
-// }
+// Initialize charts
+const initializeCharts = async () => {
+    const isAuthenticated = await checkAuthentication();
+    if (!isAuthenticated) return;
 
+    // Define your chart configurations here
+    Chart.defaults.global.legend.labels.usePointStyle = true;
+    
+    // Example usage:
+    getData('EPF', (data) => {
+        if (data && data.summary) {
+            createPieChart(
+                'epf-pi',
+                [data.summary.employeeBalance, data.summary.employerBalance],
+                ['Employee', 'Employer']
+            );
+            
+            createBarChart(
+                'epf-bar',
+                [data.summary.employeeBalance, data.summary.employerBalance],
+                ['Employee', 'Employer']
+            );
+
+            insert('epf-cb', data.summary.currentBalance);
+            insert('epf-tb', data.summary.totalBalance);
+        }
+    });
+
+    getData('PPF', (data) => {
+        if (data && data.summary) {
+            insert('ppf-cb', data.summary.currenBalance);
+            insert('ppf-md', data.summary.maturityDate);
+        }
+    });
+};
+
+// Export functions for use in other files
+window.Bar = createBarChart;
+window.Pi = createPieChart;
+window.getData = getData;
+window.insert = insert;
+
+// Initialize when document is ready
+document.addEventListener('DOMContentLoaded', initializeCharts);
