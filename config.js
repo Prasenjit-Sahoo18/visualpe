@@ -1,9 +1,40 @@
-/**
- * config.js
- * Express Example. Created by Aditya Gannavarapu (https://github.com/aditya-67)
- */
+
 
 "use strict";
+
+// Load environment variables from the `.env` file.
+require("dotenv").config();
+
+const config = {
+    // Add these URL configurations
+    URLs: {
+        BASE_URL: process.env.BASE_URL || window.location.origin,
+        API_URL: process.env.API_URL || "https://bridge-test-api.herokuapp.com",
+        ROUTES: {
+            HOME: "/index.html",
+            LOGIN: "/login.html",
+            WAIT: "/wait.html",
+            DASHBOARD: "/dashboard.html"
+        }
+    },
+    // Your existing configurations
+    port: process.env.PORT || 5000,
+    api_url: process.env.API_URL,
+    client_id: process.env.CLIENT_ID,
+    client_secret: process.env.CLIENT_SECRET,
+    JWT_secret: process.env.JWT_SECRET,
+    mongodb_secret: process.env.MDB_SECRET,
+    fiData: {
+        // ... your existing fiData
+    }
+};
+
+// Export the config
+if (typeof window !== 'undefined') {
+    window.appConfig = config;
+}
+
+module.exports = config;
 
 // Load environment variables from the `.env` file.
 require("dotenv").config();
