@@ -33,7 +33,7 @@ const login=()=>{
             }
         })
     .catch(()=>{ 
-        window.location.href="https://ansuman528.github.io/VisualPe/index.html"
+        window.location.href="https://ankushsaha18.github.io/VisualPe/index.html"
     })
        
 }
@@ -51,11 +51,11 @@ fetch(`https://bridge-test-api.herokuapp.com/checklogin`,
             {
                console.log(resp)
                if(resp.wait==true)
-               window.location.href="https://ansuman528.github.io/VisualPe/index.html"
+               window.location.href="https://ankushsaha18.github.io/VisualPe/index.html"
                if(resp.auth==true)
-               window.location.href="https://ansuman528.github.io/VisualPe/index.html"
+               window.location.href="https://ankushsaha18.github.io/VisualPe/index.html"
             }
         })
     .catch(()=>{ 
-        window.location.href="https://ansuman528.github.io/VisualPe/index.html"
+        window.location.href="https://ankushsaha18.github.io/VisualPe/index.html"
     })
