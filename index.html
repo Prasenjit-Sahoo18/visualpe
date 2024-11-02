@@ -21,6 +21,7 @@
     <!-- End layout styles -->
   </head>
   <body>
+    <script src="/path/to/auth-check.js"></script>
     <div class="container-scroller">
       <!-- navbar-->
       <nav class="navbar default-layout-navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
@@ -515,6 +516,13 @@
     <script src="assets/js/bank.js"></script>
     <script src="assets/js/chart.js"></script>
     <script src="assets/js/dashboard.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script>
+        // Prevent direct access to protected pages
+        if (!auth.isAuthenticated()) {
+            window.location.href = '/login.html';
+        }
+    </script>
     <!-- End custom js for this page -->
   </body>
 </html>

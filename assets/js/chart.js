@@ -1,4 +1,23 @@
 class ChartManager {
+    checkAuth() {
+        const jwt = localStorage.getItem("jwt");
+        if (!jwt) {
+            window.location.href = "/login.html";
+            return;
+        }
+        // Optional: Verify token validity
+        try {
+            const payload = JSON.parse(atob(jwt.split('.')[1]));
+            if (payload.exp * 1000 < Date.now()) {
+                localStorage.removeItem("jwt");
+                window.location.href = "/login.html";
+            }
+        } catch (e) {
+            localStorage.removeItem("jwt");
+            window.location.href = "/login.html";
+        }
+    }
+
     constructor() {
         this.pl1 = [
             'rgba(255, 99, 132, 0.5)', 'rgba(54, 162, 235, 0.5)',

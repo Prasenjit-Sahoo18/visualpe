@@ -5,6 +5,8 @@ const localStorage = require("localStorage");
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { MongoClient, ServerApiVersion } = require('mongodb');
+const helmet = require('helmet');
+const rateLimit = require("express-rate-limit");
 
 const config = require("./config");
 const createData = require("./util/consent_detail");
@@ -20,14 +22,22 @@ class AppServer {
     }
 
     setupMiddleware() {
+        this.app.use(helmet());
         this.app.use(cors());
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
         this.app.use(express.static("public"));
+
+        // Rate limiting
+        const limiter = rateLimit({
+            windowMs: 15 * 60 * 1000, // 15 minutes
+            max: 100 // limit each IP to 100 requests per windowMs
+        });
+        this.app.use(limiter);
     }
 
     async setupDatabase() {
-        const uri = `mongodb+srv://sayansree:${config.mongodb_secret}@cluster0.eywtc.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+        const uri = `mongodb+srv://${config.mongodb_user}:${config.mongodb_secret}@${config.mongodb_cluster}/myFirstDatabase?retryWrites=true&w=majority`;
         this.client = new MongoClient(uri, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
@@ -42,12 +52,12 @@ class AppServer {
         } catch (err) {
             console.error("Database connection error:", err);
             await this.client.close();
+            process.exit(1);
         }
     }
 
-    // Authentication Middleware
     verifyToken(req, res, next) {
-        const token = req.headers['x-access-token'];
+        const token = req.headers['authorization']?.split(' ')[1];
         
         if (!token) {
             return res.status(403).json({ 
@@ -69,12 +79,10 @@ class AppServer {
     }
 
     setupRoutes() {
-        // Basic Routes
         this.app.get("/", (req, res) => {
             res.send("VisualPe API Server");
         });
 
-        // Auth Routes
         this.app.post("/login", async (req, res) => {
             try {
                 const { phone, pin } = req.body;
@@ -118,8 +126,7 @@ class AppServer {
             }
         });
 
-        // Consent Flow Routes
-        this.app.post("/consent/:mobileNumber", this.verifyToken.bind(this), async (req, res) => {
+        this.app.post("/consent/:mobileNumber", this.verifyToken, async (req, res) => {
             try {
                 const body = createData(req.params.mobileNumber);
                 const response = await axios({
@@ -146,7 +153,6 @@ class AppServer {
             }
         });
 
-        // Notification Routes
         this.app.post("/visualpay", (req, res) => {
             this.body = req.body;
             
@@ -171,12 +177,11 @@ class AppServer {
             res.send("OK");
         });
 
-        this.app.get("/visualpay", (req, res) => {
+        this.app.get("/visualpay", this.verifyToken, (req, res) => {
             res.json(this.body);
         });
 
-        // Data Routes
-        this.app.get("/get-data/DEPOSIT", this.verifyToken.bind(this), (req, res) => {
+        this.app.get("/get-data/DEPOSIT", this.verifyToken, (req, res) => {
             try {
                 const data = JSON.parse(localStorage.getItem("jsonData"));
                 res.json({ success: true, data });
@@ -188,7 +193,7 @@ class AppServer {
             }
         });
 
-        this.app.get("/get-data/:type", this.verifyToken.bind(this), (req, res) => {
+        this.app.get("/get-data/:type", this.verifyToken, (req, res) => {
             try {
                 const data = config.fiData[req.params.type];
                 if (!data) {
@@ -228,37 +233,38 @@ class AppServer {
 
     async fi_data_fetch(session_id, consent_id) {
       try {
-        const response = await axios({
-            method: "get",
-            url: `${config.api.baseUrl}/sessions/${session_id}`,
-            headers: {
-                "Content-Type": "application/json",
-                "x-client-id": config.api.headers['x-client-id'],
-                "x-client-secret": config.api.headers['x-client-secret'],
-            },
-        });
-        localStorage.setItem("jsonData", JSON.stringify(response.data));
-        console.log("Data fetched and stored successfully");
-    } catch (error) {
-        console.error("FI data fetch error:", error);
-    }
-}
+          const response = await axios({
+              method: "get",
+              url: `${config.api.baseUrl}/sessions/${session_id}`,
+              headers: {
+                  "Content-Type": "application/json",
+                  "x-client-id": config.api.headers['x-client-id'],
+                  "x-client-secret": config.api.headers['x-client-secret'],
+              },
+          });
+          localStorage.setItem("jsonData", JSON.stringify(response.data));
+          console.log("Data fetched and stored successfully");
+      } catch (error) {
+          console.error("FI data fetch error:", error);
+      }
+  }
 
-start() {
-    const port = config.port || 5000;
-    this.app.listen(port, () => {
-        console.log(`Server is running on port ${port}`);
-    });
-}
+  start() {
+      const port = config.port || 5000;
+      this.app.use(this.handleError);
+      this.app.listen(port, () => {
+          console.log(`Server is running on port ${port}`);
+      });
+  }
 
-handleError(error, req, res, next) {
-    console.error('Server error:', error);
-    res.status(500).json({
-        success: false,
-        message: 'Internal server error',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
-}
+  handleError(error, req, res, next) {
+      console.error('Server error:', error);
+      res.status(500).json({
+          success: false,
+          message: 'Internal server error',
+          error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
+  }
 }
 
 // Create and start server instance
@@ -267,14 +273,14 @@ server.start();
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
-console.error('Uncaught Exception:', error);
-process.exit(1);
+  console.error('Uncaught Exception:', error);
+  process.exit(1);
 });
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (error) => {
-console.error('Unhandled Rejection:', error);
-process.exit(1);
+  console.error('Unhandled Rejection:', error);
+  process.exit(1);
 });
 
 module.exports = server;
