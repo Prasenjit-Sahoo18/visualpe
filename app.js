@@ -140,7 +140,7 @@ app.post("/consent/:mobileNumber", (req, res) => {
   var token = req.headers['x-access-token'];
   if (token) 
     jwt.verify(token,config.JWT_secret, (err, decoded)=> {
-    if (!err) res.send({ url:"https://ansuman528.github.io/VisualPe", token: token });
+    if (!err) res.send({ url:"https://ankushsaha18.github.io/VisualPe", token: token });
     })
   obj={
     phone : req.params.mobileNumber,
@@ -155,9 +155,9 @@ app.post("/consent/:mobileNumber", (req, res) => {
         .then(resp=>{
           console.log(`login auth:${res}`)
           if(resp)
-            res.send({ url:"https://ansuman528.github.io/VisualPe", token: tokenjwt }); 
+            res.send({ url:"https://ankushsaha18.github.io/VisualPe", token: tokenjwt }); 
           else
-            res.send({ url:"https://ansuman528.github.io/VisualPe/login.html", token: null });
+            res.send({ url:"https://ankushsaha18.github.io/VisualPe/login.html", token: null });
         return
         }).catch(()=>{
           console.log("login error")
