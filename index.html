@@ -515,6 +515,24 @@
     <script src="assets/js/bank.js"></script>
     <script src="assets/js/chart.js"></script>
     <script src="assets/js/dashboard.js"></script>
+    <script>
+      // Prevent redirect loops
+      const handleRouting = () => {
+          const jwt = localStorage.getItem("jwt");
+          const currentPage = window.location.pathname;
+          
+          if (currentPage.includes('login.html') && jwt) {
+              // If on login page with token, verify token before redirect
+              checkAuth();
+          } else if (!currentPage.includes('login.html') && !jwt) {
+              // If on any other page without token, redirect to login
+              window.location.href = "login.html";
+          }
+      }
+  
+      // Run once when page loads
+      document.addEventListener('DOMContentLoaded', handleRouting);
+  </script>
     <!-- End custom js for this page -->
   </body>
 </html>
