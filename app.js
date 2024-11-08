@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
-const localStorage = require("localStorage");
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { MongoClient, ServerApiVersion } = require('mongodb');
@@ -83,49 +82,6 @@ class AppServer {
             res.send("VisualPe API Server");
         });
 
-        this.app.post("/login", async (req, res) => {
-            try {
-                const { phone, pin } = req.body;
-                
-                const user = await this.users.findOne({ phone });
-                if (!user) {
-                    return res.status(404).json({
-                        success: false,
-                        message: "User not found"
-                    });
-                }
-
-                const validPin = await bcrypt.compare(pin, user.pin);
-                if (!validPin) {
-                    return res.status(401).json({
-                        success: false,
-                        message: "Invalid PIN"
-                    });
-                }
-
-                const token = jwt.sign(
-                    { id: user._id, phone: user.phone },
-                    config.JWT_secret,
-                    { expiresIn: '24h' }
-                );
-
-                res.json({
-                    success: true,
-                    token,
-                    user: {
-                        phone: user.phone,
-                        name: user.name
-                    }
-                });
-            } catch (error) {
-                console.error("Login error:", error);
-                res.status(500).json({
-                    success: false,
-                    message: "Internal server error"
-                });
-            }
-        });
-
         this.app.post("/consent/:mobileNumber", this.verifyToken, async (req, res) => {
             try {
                 const body = createData(req.params.mobileNumber);
@@ -181,18 +137,6 @@ class AppServer {
             res.json(this.body);
         });
 
-        this.app.get("/get-data/DEPOSIT", this.verifyToken, (req, res) => {
-            try {
-                const data = JSON.parse(localStorage.getItem("jsonData"));
-                res.json({ success: true, data });
-            } catch (error) {
-                res.status(500).json({
-                    success: false,
-                    message: "Error fetching deposit data"
-                });
-            }
-        });
-
         this.app.get("/get-data/:type", this.verifyToken, (req, res) => {
             try {
                 const data = config.fiData[req.params.type];
@@ -232,39 +176,38 @@ class AppServer {
     }
 
     async fi_data_fetch(session_id, consent_id) {
-      try {
-          const response = await axios({
-              method: "get",
-              url: `${config.api.baseUrl}/sessions/${session_id}`,
-              headers: {
-                  "Content-Type": "application/json",
-                  "x-client-id": config.api.headers['x-client-id'],
-                  "x-client-secret": config.api.headers['x-client-secret'],
-              },
-          });
-          localStorage.setItem("jsonData", JSON.stringify(response.data));
-          console.log("Data fetched and stored successfully");
-      } catch (error) {
-          console.error("FI data fetch error:", error);
-      }
-  }
+        try {
+            const response = await axios({
+                method: "get",
+                url: `${config.api.baseUrl}/sessions/${session_id}`,
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-client-id": config.api.headers['x-client-id'],
+                    "x-client-secret": config.api.headers['x-client-secret'],
+                },
+            });
+            console.log("Data fetched successfully");
+        } catch (error) {
+            console.error("FI data fetch error:", error);
+        }
+    }
 
-  start() {
-      const port = config.port || 5000;
-      this.app.use(this.handleError);
-      this.app.listen(port, () => {
-          console.log(`Server is running on port ${port}`);
-      });
-  }
+    start() {
+        const port = config.port || 5000;
+        this.app.use(this.handleError);
+        this.app.listen(port, () => {
+            console.log(`Server is running on port ${port}`);
+        });
+    }
 
-  handleError(error, req, res, next) {
-      console.error('Server error:', error);
-      res.status(500).json({
-          success: false,
-          message: 'Internal server error',
-          error: process.env.NODE_ENV === 'development' ? error.message : undefined
-      });
-  }
+    handleError(error, req, res, next) {
+        console.error('Server error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
 }
 
 // Create and start server instance
@@ -273,14 +216,14 @@ server.start();
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
-  console.error('Uncaught Exception:', error);
-  process.exit(1);
+    console.error('Uncaught Exception:', error);
+    process.exit(1);
 });
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (error) => {
-  console.error('Unhandled Rejection:', error);
-  process.exit(1);
+    console.error('Unhandled Rejection:', error);
+    process.exit(1);
 });
 
 module.exports = server;

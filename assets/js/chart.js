@@ -2,19 +2,18 @@ class ChartManager {
     checkAuth() {
         const jwt = localStorage.getItem("jwt");
         if (!jwt) {
-            window.location.href = "/login.html";
-            return;
+            return; // Removed redirection to login
         }
         // Optional: Verify token validity
         try {
             const payload = JSON.parse(atob(jwt.split('.')[1]));
             if (payload.exp * 1000 < Date.now()) {
                 localStorage.removeItem("jwt");
-                window.location.href = "/login.html";
+                // Removed redirection to login
             }
         } catch (e) {
             localStorage.removeItem("jwt");
-            window.location.href = "/login.html";
+            // Removed redirection to login
         }
     }
 
@@ -144,7 +143,7 @@ class ChartManager {
             if (!response.ok) {
                 if (response.status === 401) {
                     localStorage.removeItem('token');
-                    window.location.href = '/login';
+                    // Removed redirection to login
                     throw new Error('Authentication failed');
                 }
                 throw new Error(`HTTP error! status: ${response.status}`);

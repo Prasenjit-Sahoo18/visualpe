@@ -43,16 +43,16 @@ const config = {
     },
 
     auth: {
-      routes: {
-          login: '/login.html',
-          dashboard: '/index.html'
-      },
-      tokenKey: 'jwt',
-      cookieOptions: {
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict',
-          maxAge: 24 * 60 * 60 * 1000 // 24 hours
-      }
+        routes: {
+            login: '/login.html',
+            dashboard: '/index.html'
+        },
+        tokenKey: 'jwt',
+        cookieOptions: {
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 24 * 60 * 60 * 1000 // 24 hours
+        }
     },
 
     // Database Configuration
